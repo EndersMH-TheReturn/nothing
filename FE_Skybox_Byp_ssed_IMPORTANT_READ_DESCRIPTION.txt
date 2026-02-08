@@ -1,0 +1,641 @@
+function missing(t, f, fallback)
+    if type(f) == t then return f end
+    return fallback 
+end
+
+cloneref = missing("function", cloneref, function(...) return ... end)
+
+local Services = setmetatable({}, {
+    __index = function(_, name)
+        return cloneref(game:GetService(name))
+    end
+})
+
+local Players = Services.Players
+local RunService = Services.RunService
+local UserInputService = Services.UserInputService
+local TweenService = Services.TweenService
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+local function isR6()
+    return humanoid.RigType == Enum.HumanoidRigType.R6
+end
+
+if isR6() then
+    local errorGui = Instance.new("ScreenGui")
+    errorGui.Name = "ErrorGui"
+    errorGui.ResetOnSpawn = false
+    errorGui.Parent = Services.CoreGui
+
+    local errorFrame = Instance.new("Frame")
+    errorFrame.Size = UDim2.new(0, 400, 0, 100)
+    errorFrame.Position = UDim2.new(0.5, -200, 0.5, -50)
+    errorFrame.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+    errorFrame.BorderSizePixel = 3
+    errorFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+    errorFrame.Parent = errorGui
+    Instance.new("UICorner", errorFrame).CornerRadius = UDim.new(0, 10)
+
+    local errorText = Instance.new("TextLabel")
+    errorText.Size = UDim2.new(1, -20, 1, -20)
+    errorText.Position = UDim2.new(0, 10, 0, 10)
+    errorText.BackgroundTransparency = 1
+    errorText.Text = "SORRY, THIS SCRIPT WORKS ONLY WITH R15 AVATARS"
+    errorText.TextColor3 = Color3.fromRGB(255, 50, 50)
+    errorText.Font = Enum.Font.GothamBold
+    errorText.TextSize = 16
+    errorText.TextWrapped = true
+    errorText.Parent = errorFrame
+
+    delay(10, function()
+        errorGui:Destroy()
+    end)
+    return
+end
+
+local function checkRemotes()
+    local replicatedStorage = Services.ReplicatedStorage
+    local success, result = pcall(function()
+        return replicatedStorage:WaitForChild("BloxbizRemotes", 5)
+    end)
+    
+    if not success then
+        return false
+    end
+    
+    local bloxbizRemotes = result
+    if not bloxbizRemotes then
+        return false
+    end
+    
+    local catalogRemote = bloxbizRemotes:FindFirstChild("CatalogOnApplyOutfit")
+    local catalogToHumanoid = bloxbizRemotes:FindFirstChild("CatalogOnApplyToRealHumanoid")
+    
+    return catalogRemote ~= nil and catalogToHumanoid ~= nil
+end
+
+local hasRemotes = checkRemotes()
+
+if not hasRemotes then
+
+    local errorGui = Instance.new("ScreenGui")
+    errorGui.Name = "ErrorGui"
+    errorGui.ResetOnSpawn = false
+    errorGui.Parent = Services.CoreGui
+
+    local errorFrame = Instance.new("Frame")
+    errorFrame.Size = UDim2.new(0, 400, 0, 120)
+    errorFrame.Position = UDim2.new(0.5, -200, 0.1, 0)
+    errorFrame.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+    errorFrame.BorderSizePixel = 3
+    errorFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+    errorFrame.Parent = errorGui
+    Instance.new("UICorner", errorFrame).CornerRadius = UDim.new(0, 10)
+
+    local errorText = Instance.new("TextLabel")
+    errorText.Size = UDim2.new(1, -20, 1, -20)
+    errorText.Position = UDim2.new(0, 10, 0, 10)
+    errorText.BackgroundTransparency = 1
+    errorText.Text = "SORRY THIS GAME NOT HAVING BLOXBIZ AVATAR CATALOG, PLS BUY PRO BUILDER BUNDLE FOR FE SKYBOX"
+    errorText.TextColor3 = Color3.fromRGB(255, 50, 50)
+    errorText.Font = Enum.Font.GothamBold
+    errorText.TextSize = 16
+    errorText.TextWrapped = true
+    errorText.TextScaled = false
+    errorText.Parent = errorFrame
+
+    delay(10, function()
+        errorGui:Destroy()
+    end)
+end
+
+if hasRemotes then
+    local args = {
+      {
+        SwimAnimation = 0,
+        DepthScale = 1,
+        RightLegColor = Color3.new(0.1725490242242813, 0.3960784375667572, 0.11372549086809158),
+        MoodAnimation = 14618207727,
+        Face = 0,
+        JumpAnimation = 0,
+        HeadColor = Color3.new(1, 0.6470588445663452, 0.6000000238418579),
+        BodyTypeScale = 0,
+        ClimbAnimation = 0,
+        LeftArmColor = Color3.new(0.9725490212440491, 0.9725490212440491, 0.9725490212440491),
+        LeftLegColor = Color3.new(0.1725490242242813, 0.3960784375667572, 0.11372549086809158),
+        Pants = 0,
+        RightArmColor = Color3.new(0.9725490212440491, 0.9725490212440491, 0.9725490212440491),
+        WidthScale = 1,
+        LeftArm = 134162178631486,
+        IdleAnimation = 0,
+        RightArm = 112132665744785,
+        GraphicTShirt = 0,
+        Head = 112098331348331,
+        Shirt = 0,
+        Torso = 100839513065432,
+        RunAnimation = 0,
+        WalkAnimation = 0,
+        FallAnimation = 0,
+        TorsoColor = Color3.new(1, 1, 1),
+        Accessories = {},
+        RightLeg = 134568824619589,
+        HeadScale = 1,
+        HeightScale = 1,
+        ProportionScale = 0,
+        LeftLeg = 119032106683081
+      }
+    }
+
+    local success, err = pcall(function()
+        game:GetService("ReplicatedStorage"):WaitForChild("BloxbizRemotes"):WaitForChild("CatalogOnApplyOutfit"):FireServer(unpack(args))
+    end)
+
+    if not success then
+        warn("Failed to apply outfit: " .. tostring(err))
+    end
+end
+
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+
+    if isR6() then
+        if screenGui then
+            screenGui:Destroy()
+        end
+        return
+    end
+end)
+
+local Settings = {
+    ["Fade In"] = 0.1,
+    ["Fade Out"] = 0.1,
+    ["Weight"] = 1,
+    ["Speed"] = 1,
+    ["Allow Invisible"] = true,
+    ["Time Position"] = 0.99
+}
+
+local CurrentTrack
+local FIXED_EMOTE_ID = 113633503026070
+
+local function LoadTrack()
+    if CurrentTrack then 
+        CurrentTrack:Stop(0) 
+    end
+
+    local animId
+    local ok, result = pcall(function()
+        return game:GetObjects("rbxassetid://" .. tostring(FIXED_EMOTE_ID))
+    end)
+
+    if ok and result and #result > 0 then
+        local anim = result[1]
+        if anim:IsA("Animation") then
+            animId = anim.AnimationId
+        else
+            animId = "rbxassetid://" .. tostring(FIXED_EMOTE_ID)
+        end
+    else
+        animId = "rbxassetid://" .. tostring(FIXED_EMOTE_ID)
+    end
+
+    local newAnim = Instance.new("Animation")
+    newAnim.AnimationId = animId
+    local newTrack = humanoid:LoadAnimation(newAnim)
+    newTrack.Priority = Enum.AnimationPriority.Action4
+
+    local weight = Settings["Weight"]
+    if weight == 0 then
+        weight = 0.001
+    end
+
+    newTrack:Play(Settings["Fade In"], weight, Settings["Speed"])
+    
+    CurrentTrack = newTrack
+    CurrentTrack.TimePosition = math.clamp(Settings["Time Position"], 0, 1) * CurrentTrack.Length
+
+    delay(1, function()
+        if CurrentTrack and CurrentTrack == newTrack and CurrentTrack.IsPlaying then
+            CurrentTrack:AdjustSpeed(0)
+        end
+    end)
+
+    return newTrack
+end
+
+local function StopTrack()
+    if CurrentTrack then
+        CurrentTrack:Stop(Settings["Fade Out"])
+        CurrentTrack = nil
+    end
+end
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "SettingsGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = Services.CoreGui
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 400, 0, 500)
+mainFrame.Position = UDim2.new(0.3, 0, 0.2, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+mainFrame.Visible = false -- Default state is now hidden as requested
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+
+-- /// START: New Toggle Button ///
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "ToggleButton"
+toggleButton.Size = UDim2.new(0, 100, 0, 30)
+toggleButton.Position = UDim2.new(0, 15, 1, -45) -- Positioned at the bottom-left
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+toggleButton.Text = "SHOW"
+toggleButton.TextColor3 = Color3.new(1, 1, 1)
+toggleButton.Font = Enum.Font.GothamBold
+toggleButton.TextSize = 16
+toggleButton.Parent = screenGui -- Parented to screenGui so it's not affected by mainFrame visibility
+Instance.new("UICorner", toggleButton).CornerRadius = UDim.new(0, 6)
+
+toggleButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+    if mainFrame.Visible then
+        toggleButton.Text = "HIDE"
+    else
+        toggleButton.Text = "SHOW"
+    end
+end)
+-- /// END: New Toggle Button ///
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundTransparency = 1
+title.Text = "Fe Skybox(Need bloxbiz or pro builder bundle)"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Parent = mainFrame
+
+local buttonContainer = Instance.new("Frame")
+buttonContainer.Size = UDim2.new(1, -20, 0, 40)
+buttonContainer.Position = UDim2.new(0, 10, 0, 45)
+buttonContainer.BackgroundTransparency = 1
+buttonContainer.Parent = mainFrame
+
+local playButton = Instance.new("TextButton")
+playButton.Size = UDim2.new(0.48, 0, 1, 0)
+playButton.Position = UDim2.new(0, 0, 0, 0)
+playButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+playButton.Text = "▶ Play"
+playButton.TextColor3 = Color3.new(1, 1, 1)
+playButton.Font = Enum.Font.GothamBold
+playButton.TextSize = 16
+playButton.Parent = buttonContainer
+Instance.new("UICorner", playButton).CornerRadius = UDim.new(0, 6)
+
+local stopButton = Instance.new("TextButton")
+stopButton.Size = UDim2.new(0.48, 0, 1, 0)
+stopButton.Position = UDim2.new(0.52, 0, 0, 0)
+stopButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+stopButton.Text = "■ Stop"
+stopButton.TextColor3 = Color3.new(1, 1, 1)
+stopButton.Font = Enum.Font.GothamBold
+stopButton.TextSize = 16
+stopButton.Parent = buttonContainer
+Instance.new("UICorner", stopButton).CornerRadius = UDim.new(0, 6)
+
+playButton.MouseButton1Click:Connect(LoadTrack)
+stopButton.MouseButton1Click:Connect(StopTrack)
+
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, -20, 1, -100)
+scrollFrame.Position = UDim2.new(0, 10, 0, 100)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.ScrollBarThickness = 8
+scrollFrame.Parent = mainFrame
+
+local listLayout = Instance.new("UIListLayout", scrollFrame)
+listLayout.Padding = UDim.new(0, 8)
+listLayout.FillDirection = Enum.FillDirection.Vertical
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 10)
+end)
+
+local function createSlider(name, min, max, default)
+    Settings[name] = default or min
+
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, 0, 0, 80)
+    container.BackgroundTransparency = 1
+    container.Parent = scrollFrame
+
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    bg.Parent = container
+    Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 8)
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.5, -10, 0, 25)
+    label.Position = UDim2.new(0, 10, 0, 5)
+    label.BackgroundTransparency = 1
+    label.Text = string.format("%s: %.2f", name, Settings[name])
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.Font = Enum.Font.Gotham
+    label.TextSize = 16
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = bg
+
+    local textBox = Instance.new("TextBox")
+    textBox.Size = UDim2.new(0.5, -20, 0, 25)
+    textBox.Position = UDim2.new(0.5, 10, 0, 5)
+    textBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    textBox.Text = tostring(Settings[name])
+    textBox.TextColor3 = Color3.new(1, 1, 1)
+    textBox.Font = Enum.Font.Gotham
+    textBox.TextSize = 14
+    textBox.ClearTextOnFocus = false
+    textBox.Parent = bg
+    Instance.new("UICorner", textBox).CornerRadius = UDim.new(0, 6)
+
+    local sliderBar = Instance.new("Frame")
+    sliderBar.Size = UDim2.new(1, -40, 0, 16)
+    sliderBar.Position = UDim2.new(0, 20, 0, 40)
+    sliderBar.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    sliderBar.Parent = bg
+    Instance.new("UICorner", sliderBar).CornerRadius = UDim.new(0, 6)
+
+    local sliderFill = Instance.new("Frame")
+    sliderFill.Size = UDim2.new(0, 0, 1, 0)
+    sliderFill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+    sliderFill.Parent = sliderBar
+    Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(0, 6)
+
+    local thumb = Instance.new("Frame")
+    thumb.Size = UDim2.new(0, 24, 0, 24)
+    thumb.AnchorPoint = Vector2.new(0.5, 0.5)
+    thumb.Position = UDim2.new(0, 0, 0.5, 0)
+    thumb.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
+    thumb.Parent = sliderBar
+    Instance.new("UICorner", thumb).CornerRadius = UDim.new(1, 0)
+
+    local function applyValue(value)
+        Settings[name] = value
+        label.Text = string.format("%s: %.2f", name, value)
+        textBox.Text = tostring(value)
+        
+        local visualValue = math.clamp(value, min, max)
+        local rel = (visualValue - min) / (max - min)
+        sliderFill.Size = UDim2.new(rel, 0, 1, 0)
+        thumb.Position = UDim2.new(rel, 0, 0.5, 0)
+
+        if CurrentTrack and CurrentTrack.IsPlaying then
+            if name == "Speed" then
+                CurrentTrack:AdjustSpeed(Settings["Speed"])
+            elseif name == "Weight" then
+                local weight = Settings["Weight"]
+                if weight == 0 then weight = 0.001 end
+                CurrentTrack:AdjustWeight(weight)
+            elseif name == "Time Position" then
+                if CurrentTrack and CurrentTrack.IsPlaying and CurrentTrack.Length > 0 then
+                    CurrentTrack.TimePosition = math.clamp(value, 0, 1) * CurrentTrack.Length
+                end
+            end
+        end
+    end
+   
+    local dragging = false
+    local function updateFromInput(input)
+        local relX = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
+        local value = math.floor((min + (max - min) * relX) * 100) / 100
+        applyValue(value)
+    end
+
+    sliderBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            updateFromInput(input)
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            updateFromInput(input)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+
+    textBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            local num = tonumber(textBox.Text)
+            if num then
+                applyValue(num)
+            else
+                textBox.Text = tostring(Settings[name])
+            end
+        end
+    end)
+
+    applyValue(Settings[name])
+end
+
+local function createToggle(name)
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, 0, 0, 50)
+    container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    container.Parent = scrollFrame
+    Instance.new("UICorner", container).CornerRadius = UDim.new(0, 8)
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.7, -10, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = name
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.Font = Enum.Font.Gotham
+    label.TextSize = 16
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = container
+
+    local toggleBtn = Instance.new("TextButton")
+    toggleBtn.Size = UDim2.new(0, 70, 0, 28)
+    toggleBtn.Position = UDim2.new(1, -80, 0.5, -14)
+    toggleBtn.BackgroundColor3 = Settings[name] and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+    toggleBtn.Text = Settings[name] and "ON" or "OFF"
+    toggleBtn.TextColor3 = Color3.new(1, 1, 1)
+    toggleBtn.Font = Enum.Font.GothamBold
+    toggleBtn.TextSize = 14
+    toggleBtn.Parent = container
+    Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1, 0)
+
+    toggleBtn.MouseButton1Click:Connect(function()
+        Settings[name] = not Settings[name]
+        toggleBtn.Text = Settings[name] and "ON" or "OFF"
+        toggleBtn.BackgroundColor3 = Settings[name] and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+    end)
+end
+
+local function createSkyboxButton()
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, 0, 0, 60)
+    container.BackgroundTransparency = 1
+    container.Parent = scrollFrame
+
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    bg.Parent = container
+    Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 8)
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.6, -10, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = "Coolkid Skybox"
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.Font = Enum.Font.Gotham
+    label.TextSize = 16
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = bg
+
+    local skyboxButton = Instance.new("TextButton")
+    skyboxButton.Size = UDim2.new(0.35, 0, 0, 35)
+    skyboxButton.Position = UDim2.new(0.65, 5, 0.5, -17.5)
+    skyboxButton.BackgroundColor3 = Color3.fromRGB(150, 0, 255)
+    skyboxButton.Text = hasRemotes and "APPLY" or "NO REMOTES"
+    skyboxButton.TextColor3 = Color3.new(1, 1, 1)
+    skyboxButton.Font = Enum.Font.GothamBold
+    skyboxButton.TextSize = 14
+    skyboxButton.Parent = bg
+    Instance.new("UICorner", skyboxButton).CornerRadius = UDim.new(0, 6)
+
+    if hasRemotes then
+        skyboxButton.MouseButton1Click:Connect(function()
+            local success, err = pcall(function()
+                local args = {
+                    {
+                        Property = "Shirt",
+                        AssetId = 12969823720
+                    }
+                }
+                game:GetService("ReplicatedStorage"):WaitForChild("BloxbizRemotes"):WaitForChild("CatalogOnApplyToRealHumanoid"):FireServer(unpack(args))
+            end)
+            
+            if not success then
+                warn("Failed to apply skybox: " .. tostring(err))
+            end
+        end)
+    else
+        skyboxButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        skyboxButton.AutoButtonColor = false
+    end
+end
+
+local function createCustomSection()
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, 0, 0, 90)
+    container.BackgroundTransparency = 1
+    container.Parent = scrollFrame
+
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    bg.Parent = container
+    Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 8)
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -20, 0, 25)
+    label.Position = UDim2.new(0, 10, 0, 5)
+    label.BackgroundTransparency = 1
+    label.Text = "Custom Shirt (Skybox) ID:"
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.Font = Enum.Font.Gotham
+    label.TextSize = 16
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = bg
+
+    local customInput = Instance.new("TextBox")
+    customInput.Size = UDim2.new(0.6, 0, 0, 35)
+    customInput.Position = UDim2.new(0, 10, 0, 35)
+    customInput.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    customInput.Text = ""
+    customInput.PlaceholderText = "Enter Asset ID..."
+    customInput.TextColor3 = Color3.new(1, 1, 1)
+    customInput.Font = Enum.Font.Gotham
+    customInput.TextSize = 14
+    customInput.ClearTextOnFocus = false
+    customInput.Parent = bg
+    Instance.new("UICorner", customInput).CornerRadius = UDim.new(0, 6)
+
+    local wearButton = Instance.new("TextButton")
+    wearButton.Size = UDim2.new(0.35, 0, 0, 35)
+    wearButton.Position = UDim2.new(0.65, 10, 0, 35)
+    wearButton.BackgroundColor3 = hasRemotes and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(100, 100, 100)
+    wearButton.Text = hasRemotes and "WEAR" or "NO REMOTES"
+    wearButton.TextColor3 = Color3.new(1, 1, 1)
+    wearButton.Font = Enum.Font.GothamBold
+    wearButton.TextSize = 14
+    wearButton.Parent = bg
+    Instance.new("UICorner", wearButton).CornerRadius = UDim.new(0, 6)
+
+    if hasRemotes then
+        wearButton.MouseButton1Click:Connect(function()
+            local assetId = tonumber(customInput.Text)
+            if assetId then
+                local success, err = pcall(function()
+                    local args = {
+                        {
+                            Property = "Shirt",
+                            AssetId = assetId
+                        }
+                    }
+                    game:GetService("ReplicatedStorage"):WaitForChild("BloxbizRemotes"):WaitForChild("CatalogOnApplyToRealHumanoid"):FireServer(unpack(args))
+                end)
+                
+                if not success then
+                    warn("Failed to apply custom asset: " .. tostring(err))
+                end
+            else
+                warn("Invalid Asset ID")
+            end
+        end)
+    else
+        wearButton.AutoButtonColor = false
+    end
+end
+
+createSlider("Time Position", 0, 1, Settings["Time Position"])
+createSlider("Speed", 0, 5, Settings["Speed"])
+createSlider("Weight", 0, 1, Settings["Weight"])
+createSlider("Fade In", 0, 2, Settings["Fade In"])
+createSlider("Fade Out", 0, 2, Settings["Fade Out"])
+createToggle("Allow Invisible")
+createSkyboxButton()
+createCustomSection()
+
+local footerContainer = Instance.new("Frame")
+footerContainer.Size = UDim2.new(1, 0, 0, 40)
+footerContainer.BackgroundTransparency = 1
+footerContainer.Parent = scrollFrame
+
+local footerText = Instance.new("TextLabel")
+footerText.Size = UDim2.new(1, 0, 1, 0)
+footerText.BackgroundTransparency = 1
+footerText.Text = "PLS JOIN IN MY DISCORD\nhttps://discord.gg/Tmyb9ySsCR"
+footerText.TextColor3 = Color3.new(1, 1, 1)
+footerText.Font = Enum.Font.Gotham
+footerText.TextSize = 14
+footerText.TextWrapped = true
+footerText.Parent = footerContainer
