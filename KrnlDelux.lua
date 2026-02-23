@@ -63,31 +63,45 @@ end)
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
--- MAIN CIRCLE BUTTON
-local bar = Instance.new("ImageButton")
-bar.Size = UDim2.fromOffset(70,70)
-bar.Position = UDim2.new(0.5,0,0,10)
-bar.AnchorPoint = Vector2.new(0.5,0)
-bar.BackgroundColor3 = Color3.fromRGB(170, 0, 255) -- vibrant neon purple
-bar.BackgroundTransparency = 0
-bar.Image = "" -- no background image
-bar.AutoButtonColor = false
-bar.Parent = main
-
--- Perfect circle
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(1,0)
-corner.Parent = bar
-
--- OPTIONAL subtle glow ring (can remove if you want ultra flat)
-local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(200, 80, 255)
-stroke.Thickness = 2
-stroke.Transparency = 0.2
-stroke.Parent = bar
+-- GET GUI
+local screenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("Krnl_GUI")
 
 ---------------------------------------------------
--- CENTER ICON (your KRNL logo)
+-- MAIN CIRCLE BUTTON
+---------------------------------------------------
+local bar = Instance.new("ImageButton")
+bar.Size = UDim2.fromOffset(68,68)
+bar.Position = UDim2.new(0.5,0,0,10)
+bar.AnchorPoint = Vector2.new(0.5,0)
+bar.BackgroundColor3 = Color3.fromRGB(160, 0, 255)
+bar.AutoButtonColor = false
+bar.Image = ""
+bar.Parent = screenGui
+
+Instance.new("UICorner", bar).CornerRadius = UDim.new(1,0)
+
+---------------------------------------------------
+-- DEPTH GRADIENT
+---------------------------------------------------
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 80, 255)), -- lighter top
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(110, 0, 200)) -- darker bottom
+}
+gradient.Rotation = 90
+gradient.Parent = bar
+
+---------------------------------------------------
+-- SOFT OUTER GLOW
+---------------------------------------------------
+local glow = Instance.new("UIStroke")
+glow.Thickness = 3
+glow.Color = Color3.fromRGB(170, 0, 255)
+glow.Transparency = 0.5
+glow.Parent = bar
+
+---------------------------------------------------
+-- CENTER LOGO
 ---------------------------------------------------
 local icon = Instance.new("ImageLabel")
 icon.Size = UDim2.new(0.65,0,0.65,0)
@@ -98,45 +112,17 @@ icon.Image = "rbxassetid://74662995765930"
 icon.ScaleType = Enum.ScaleType.Fit
 icon.Parent = bar
 
-bar.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement 
-	or input.UserInputType == Enum.UserInputType.Touch then
-		
-		if dragStart then
-			local delta = input.Position - dragStart
-			
-			if math.abs(delta.X) > dragThreshold or math.abs(delta.Y) > dragThreshold then
-				dragging = true
-				
-				local newPos = UDim2.new(
-					startPos.X.Scale,
-					startPos.X.Offset + delta.X,
-					startPos.Y.Scale,
-					startPos.Y.Offset + delta.Y
-				)
-				
-				TweenService:Create(bar, TweenInfo.new(0.05), {
-					Position = newPos
-				}):Play()
-			end
-		end
-	end
-end)
-
-bar.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 
-	or input.UserInputType == Enum.UserInputType.Touch then
-		
-		-- If it wasn't dragged much, treat as click
-		if not dragging then
-			-- TOGGLE UI HERE
-			mainFrame.Visible = not mainFrame.Visible
-		end
-		
-		dragStart = nil
-		dragging = false
-	end
-end)
+---------------------------------------------------
+-- SUBTLE TOP HIGHLIGHT (3D FEEL)
+---------------------------------------------------
+local highlight = Instance.new("Frame")
+highlight.Size = UDim2.new(1,0,0.55,0)
+highlight.Position = UDim2.new(0,0,0,0)
+highlight.BackgroundColor3 = Color3.new(1,1,1)
+highlight.BackgroundTransparency = 0.88
+highlight.BorderSizePixel = 0
+highlight.Parent = bar
+Instance.new("UICorner", highlight).CornerRadius = UDim.new(1,0)
 
 -- ==================== NEW GUI ====================
 local newGui = Instance.new("ImageLabel")
