@@ -1,12 +1,3 @@
--- Krnl Deluxe – FINAL FIXED VERSION (R6 button uses your exact loadstring + Left scrollable + All features)
--- R6 button now executes: loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-r6-script-56753"))()
--- Left side is scrollable (ScrollingFrame)
--- Bar transparency = 0.4, always visible
--- FOV smoothly to 50 when GUI opens, back to default when closed
--- Intro fade only + blur during intro
--- No click sounds
--- 100% working – Copy & paste!
-
 local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
 local UserInputService = game:GetService("UserInputService")
@@ -45,7 +36,7 @@ task.spawn(function()
     txt.Size = UDim2.new(1,0,1,0)
     txt.Position = UDim2.new(0,0,0,0)
     txt.BackgroundTransparency = 1
-    txt.Text = "Krnl Deluxe"
+    txt.Text = "Krnl"
     txt.TextColor3 = Color3.new(1,1,1)
     txt.TextSize = 100
     txt.Font = Enum.Font.MontserratBold
@@ -69,16 +60,67 @@ task.spawn(function()
 end)
 
 -- ==================== BAR (always visible) ====================
+local UserInputService = game:GetService("UserInputService")
+
+-- CIRCULAR BUTTON
 local bar = Instance.new("ImageButton")
-bar.Size = UDim2.new(0,138,0,30)
+bar.Size = UDim2.fromOffset(70,70) -- perfect circle
 bar.Position = UDim2.new(0.5,0,0,10)
 bar.AnchorPoint = Vector2.new(0.5,0)
-bar.BackgroundTransparency = 1
+bar.BackgroundColor3 = Color3.fromRGB(20,20,20)
+bar.BackgroundTransparency = 0
 bar.Image = "rbxassetid://6278672195"
-bar.ImageColor3 = Color3.fromRGB(141,0,45)
-bar.ImageTransparency = 0.4
+bar.ImageColor3 = Color3.fromRGB(255,255,255)
+bar.ImageTransparency = 0
+bar.ScaleType = Enum.ScaleType.Fit
+bar.AutoButtonColor = false
 bar.Parent = main
-Instance.new("UICorner",bar).CornerRadius = UDim.new(1,0)
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(1,0)
+corner.Parent = bar
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(141,0,45)
+stroke.Thickness = 2
+stroke.Parent = bar
+
+---------------------------------------------------
+-- DRAGGING (PC + MOBILE)
+---------------------------------------------------
+local dragging = false
+local dragStart, startPos
+
+bar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 
+	or input.UserInputType == Enum.UserInputType.Touch then
+		
+		dragging = true
+		dragStart = input.Position
+		startPos = bar.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+bar.InputChanged:Connect(function(input)
+	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement 
+	or input.UserInputType == Enum.UserInputType.Touch) then
+		
+		local delta = input.Position - dragStart
+		bar.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
 
 -- ==================== NEW GUI ====================
 local newGui = Instance.new("ImageLabel")
@@ -283,19 +325,22 @@ luaPanel.Size = UDim2.new(1,0,1,0)
 luaPanel.Position = UDim2.new(0,0,0,0)
 luaPanel.BackgroundTransparency = 1
 
-local scriptBox = Instance.new("TextBox",luaPanel)
 scriptBox.Size = UDim2.new(0.9,0,0.7,0)
 scriptBox.Position = UDim2.new(0.05,0,0.05,0)
-scriptBox.BackgroundColor3 = Color3.new(0,0,0)
-scriptBox.BackgroundTransparency = 0.2
-scriptBox.TextColor3 = Color3.new(1,1,1)
-scriptBox.PlaceholderText = "--Krnl Deluxe lua scripting"
+scriptBox.BackgroundColor3 = Color3.fromRGB(20,20,20)
+scriptBox.BackgroundTransparency = 0.1
+scriptBox.TextColor3 = Color3.fromRGB(230,230,230)
+scriptBox.PlaceholderText = "-- Write your script here"
 scriptBox.MultiLine = true
-scriptBox.TextWrapped = true
+scriptBox.TextWrapped = false
 scriptBox.TextScaled = false
+scriptBox.ClearTextOnFocus = false
 scriptBox.Font = Enum.Font.Code
 scriptBox.TextSize = 14
-Instance.new("UICorner",scriptBox).CornerRadius = UDim.new(0,9)
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0,9)
+corner.Parent = scriptBox
 
 local buttonsFrame = Instance.new("Frame",luaPanel)
 buttonsFrame.Size = UDim2.new(0,382,0,50)
