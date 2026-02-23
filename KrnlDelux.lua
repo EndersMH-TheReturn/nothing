@@ -115,34 +115,21 @@ icon.ScaleType = Enum.ScaleType.Fit
 icon.Parent = bar
 
 ---------------------------------------------------
--- SUBTLE TOP HIGHLIGHT (3D FEEL)
----------------------------------------------------
-local highlight = Instance.new("Frame")
-highlight.Size = UDim2.new(1,0,0.55,0)
-highlight.Position = UDim2.new(0,0,0,0)
-highlight.BackgroundColor3 = Color3.new(1,1,1)
-highlight.BackgroundTransparency = 0.88
-highlight.BorderSizePixel = 0
-highlight.Parent = bar
-Instance.new("UICorner", highlight).CornerRadius = UDim.new(1,0)
-
----------------------------------------------------
--- DRAG + CLICK SYSTEM
+-- DRAG + CLICK (STABLE VERSION)
 ---------------------------------------------------
 
 local UserInputService = game:GetService("UserInputService")
-
 local mainFrame = screenGui:WaitForChild("Frame")
 
 local dragging = false
 local dragStart
 local startPos
-local clickThreshold = 6 -- pixels allowed before it counts as drag
+local clickThreshold = 6
 
 bar.Active = true
 
 bar.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1
+	if input.UserInputType == Enum.UserInputType.MouseButton1 
 	or input.UserInputType == Enum.UserInputType.Touch then
 		
 		dragging = true
@@ -151,25 +138,8 @@ bar.InputBegan:Connect(function(input)
 	end
 end)
 
-bar.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1
-	or input.UserInputType == Enum.UserInputType.Touch then
-		
-		if dragStart then
-			local delta = (input.Position - dragStart).Magnitude
-			
-			-- If barely moved → treat as click
-			if delta < clickThreshold then
-				mainFrame.Visible = not mainFrame.Visible
-			end
-		end
-		
-		dragging = false
-	end
-end)
-
 UserInputService.InputChanged:Connect(function(input)
-	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement 
 	or input.UserInputType == Enum.UserInputType.Touch) then
 		
 		local delta = input.Position - dragStart
@@ -183,10 +153,21 @@ UserInputService.InputChanged:Connect(function(input)
 	end
 end)
 
-local mainFrame = screenGui:WaitForChild("Frame")
-
-bar.MouseButton1Click:Connect(function()
-	mainFrame.Visible = not mainFrame.Visible
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 
+	or input.UserInputType == Enum.UserInputType.Touch then
+		
+		if dragging and dragStart then
+			local delta = (input.Position - dragStart).Magnitude
+			
+			-- If barely moved, treat as click
+			if delta < clickThreshold then
+				mainFrame.Visible = not mainFrame.Visible
+			end
+		end
+		
+		dragging = false
+	end
 end)
 
 bar.Active = true
