@@ -69,6 +69,8 @@ local screenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):WaitForChil
 ---------------------------------------------------
 -- MAIN CIRCLE BUTTON
 ---------------------------------------------------
+local UserInputService = game:GetService("UserInputService")
+
 local bar = Instance.new("ImageButton")
 bar.Size = UDim2.fromOffset(68,68)
 bar.Position = UDim2.new(0.5,0,0,10)
@@ -125,22 +127,19 @@ highlight.Parent = bar
 Instance.new("UICorner", highlight).CornerRadius = UDim.new(1,0)
 
 ---------------------------------------------------
--- DRAG FUNCTION
+-- DRAG + CLICK SYSTEM
 ---------------------------------------------------
+
+local UserInputService = game:GetService("UserInputService")
+
+local mainFrame = screenGui:WaitForChild("Frame")
+
 local dragging = false
-local dragInput
 local dragStart
 local startPos
+local clickThreshold = 6 -- pixels allowed before it counts as drag
 
-local function update(input)
-	local delta = input.Position - dragStart
-	bar.Position = UDim2.new(
-		startPos.X.Scale,
-		startPos.X.Offset + delta.X,
-		startPos.Y.Scale,
-		startPos.Y.Offset + delta.Y
-	)
-end
+bar.Active = true
 
 bar.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1
@@ -149,26 +148,45 @@ bar.InputBegan:Connect(function(input)
 		dragging = true
 		dragStart = input.Position
 		startPos = bar.Position
-
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
 	end
 end)
 
-bar.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement
+bar.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
 	or input.UserInputType == Enum.UserInputType.Touch then
-		dragInput = input
+		
+		if dragStart then
+			local delta = (input.Position - dragStart).Magnitude
+			
+			-- If barely moved → treat as click
+			if delta < clickThreshold then
+				mainFrame.Visible = not mainFrame.Visible
+			end
+		end
+		
+		dragging = false
 	end
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		update(input)
+	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+	or input.UserInputType == Enum.UserInputType.Touch) then
+		
+		local delta = input.Position - dragStart
+		
+		bar.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
 	end
+end)
+
+local mainFrame = screenGui:WaitForChild("Frame")
+
+bar.MouseButton1Click:Connect(function()
+	mainFrame.Visible = not mainFrame.Visible
 end)
 
 bar.Active = true
