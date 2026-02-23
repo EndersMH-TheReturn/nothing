@@ -715,4 +715,4 @@ local function showMessage(text, color)
     msg:Destroy()
 end
 
-pprint"krnl executed!")
+print"krnl executed!")
