@@ -714,5 +714,3 @@ local function showMessage(text, color)
     task.wait(0.8)
     msg:Destroy()
 end
-
-print("krnl executed!")
