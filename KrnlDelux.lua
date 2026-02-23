@@ -7,7 +7,7 @@ local camera = workspace.CurrentCamera
 local pgui = player:WaitForChild("PlayerGui")
 
 local main = Instance.new("ScreenGui")
-main.Name = "KrnlDeluxe_GUI"
+main.Name = "Krnl_GUI"
 main.ResetOnSpawn = false
 main.IgnoreGuiInset = true
 main.Parent = pgui
@@ -61,66 +61,82 @@ end)
 
 -- ==================== BAR (always visible) ====================
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
--- CIRCULAR BUTTON
+-- MAIN CIRCLE BUTTON
 local bar = Instance.new("ImageButton")
-bar.Size = UDim2.fromOffset(70,70) -- perfect circle
+bar.Size = UDim2.fromOffset(70,70)
 bar.Position = UDim2.new(0.5,0,0,10)
 bar.AnchorPoint = Vector2.new(0.5,0)
-bar.BackgroundColor3 = Color3.fromRGB(20,20,20)
+bar.BackgroundColor3 = Color3.fromRGB(170, 0, 255) -- vibrant neon purple
 bar.BackgroundTransparency = 0
-bar.Image = "rbxassetid://6278672195"
-bar.ImageColor3 = Color3.fromRGB(255,255,255)
-bar.ImageTransparency = 0
-bar.ScaleType = Enum.ScaleType.Fit
+bar.Image = "" -- no background image
 bar.AutoButtonColor = false
 bar.Parent = main
 
+-- Perfect circle
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(1,0)
 corner.Parent = bar
 
+-- OPTIONAL subtle glow ring (can remove if you want ultra flat)
 local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(141,0,45)
+stroke.Color = Color3.fromRGB(200, 80, 255)
 stroke.Thickness = 2
+stroke.Transparency = 0.2
 stroke.Parent = bar
 
 ---------------------------------------------------
--- DRAGGING (PC + MOBILE)
+-- CENTER ICON (your KRNL logo)
 ---------------------------------------------------
-local dragging = false
-local dragStart, startPos
+local icon = Instance.new("ImageLabel")
+icon.Size = UDim2.new(0.65,0,0.65,0)
+icon.Position = UDim2.new(0.5,0,0.5,0)
+icon.AnchorPoint = Vector2.new(0.5,0.5)
+icon.BackgroundTransparency = 1
+icon.Image = "rbxassetid://74662995765930"
+icon.ScaleType = Enum.ScaleType.Fit
+icon.Parent = bar
 
-bar.InputBegan:Connect(function(input)
+bar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement 
+	or input.UserInputType == Enum.UserInputType.Touch then
+		
+		if dragStart then
+			local delta = input.Position - dragStart
+			
+			if math.abs(delta.X) > dragThreshold or math.abs(delta.Y) > dragThreshold then
+				dragging = true
+				
+				local newPos = UDim2.new(
+					startPos.X.Scale,
+					startPos.X.Offset + delta.X,
+					startPos.Y.Scale,
+					startPos.Y.Offset + delta.Y
+				)
+				
+				TweenService:Create(bar, TweenInfo.new(0.05), {
+					Position = newPos
+				}):Play()
+			end
+		end
+	end
+end)
+
+bar.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 
 	or input.UserInputType == Enum.UserInputType.Touch then
 		
-		dragging = true
-		dragStart = input.Position
-		startPos = bar.Position
+		-- If it wasn't dragged much, treat as click
+		if not dragging then
+			-- TOGGLE UI HERE
+			mainFrame.Visible = not mainFrame.Visible
+		end
 		
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
+		dragStart = nil
+		dragging = false
 	end
 end)
-
-bar.InputChanged:Connect(function(input)
-	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement 
-	or input.UserInputType == Enum.UserInputType.Touch) then
-		
-		local delta = input.Position - dragStart
-		bar.Position = UDim2.new(
-			startPos.X.Scale,
-			startPos.X.Offset + delta.X,
-			startPos.Y.Scale,
-			startPos.Y.Offset + delta.Y
-		)
-	end
-end)
-
 
 -- ==================== NEW GUI ====================
 local newGui = Instance.new("ImageLabel")
@@ -699,4 +715,4 @@ local function showMessage(text, color)
     msg:Destroy()
 end
 
-print("Krnl Deluxe – FIXED! R6 uses your exact loadstring + Left scrollable + All perfect")
+pprint"krnl executed!")
